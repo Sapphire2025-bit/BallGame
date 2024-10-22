@@ -51,6 +51,25 @@ class Board {
         return "border";
     }
 
+    determineCellColor(type)
+    {
+        switch (type)
+        {
+            case "middle":
+                //gray
+                return "#aeb0af";
+            case "border":
+                //pink
+                return "#db95db";
+            case "portal":
+                //blue
+                return "#8bcee8";
+            default:
+                //red
+                return "#e31920";
+        }
+    }
+
     printBoard() {
         let line;
         let position;
@@ -70,18 +89,32 @@ class Board {
 
     renderBoard() {
         let container = document.getElementById("boardContainer");
-        let percent = (100/this.colSize) + "fr ";
-        let line = percent.repeat(this.colSize).trim();
+        //column
+        let part = (100/this.colSize) + "fr ";
+        let line = part.repeat(this.colSize).trim();
         container.style.gridTemplateColumns = line;
+        //row
+        part = "60px ";
+        line = part.repeat(this.rowSize).trim();
+        container.style.gridTemplateRows = line;
+        let type;
         
         for (let i = 0; i < this.rowSize; i++) {
             for (let j = 0; j < this.colSize; j++) {
-                //let type = this.board[this.calcPosition(i, j)].getType;
+                //console.log(`i = ${i}, j = ${j}`);
+                //console.log(this.calcPosition(i,j));
+                type = this.board[this.calcPosition(i, j)].type;
+                //console.log(type);
                 let newSquare = document.createElement("div");
                 //newSquare.style.height = "100px";
                 //newSquare.style.width = (100/this.colSize) + "%";
-                newSquare.style.backgroundColor = "#ff33ff";
+                newSquare.style.backgroundColor = this.determineCellColor(type);
                 newSquare.style.border = "1px solid black"
+                //add image: for test
+                newSquare.style.backgroundImage = "url('../DATA/images/images_no_background/candy.png')"
+                newSquare.style.backgroundSize = "contain";
+                newSquare.style.backgroundRepeat = "no-repeat";
+                newSquare.style.backgroundPosition = "center";
                 //let cssSquare = createCssSquare(this.board[this.calcPosition(i, j)].getType);
                 container.appendChild(newSquare);
             }
@@ -101,7 +134,7 @@ function checkIfMiddle(position, maxSize) {
     }
 }
 
-let a = new Board(2, 4);
+let a = new Board(5, 4);
 a.createCells();
 a.printBoard();
 a.renderBoard();

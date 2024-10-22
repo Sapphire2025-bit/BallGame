@@ -1,5 +1,4 @@
 #boardContainer{
     width: 100%;
     display: grid;
-    grid-template-rows: 60px 60px;
 }
