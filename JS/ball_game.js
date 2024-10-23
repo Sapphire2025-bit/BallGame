@@ -32,6 +32,8 @@ class Board {
         this.score = 0;
         this.candyOnBoard = 0;
         this.win = false;
+
+        this.candyIntervalId = null;
     }
 
     createCells() {
@@ -134,12 +136,20 @@ class Board {
 
     addCandy()
     {
-        //if no win
-        //wait x time, put random candy (call set location ccandy), repeat
+        //if game finished or no available places for candy, return
+        console.log("candy");
+        console.log(this.emptyPlaces)
+        if(this.win || this.emptyPlaces.length < 1)
+            return;
+        //wait x time, put random candy (call set location ccandy)
+        let location = Math.floor(Math.random() * this.emptyPlaces.length);
+        this.setLocation(location, "candy");
     }
 
     movePlayer(code)
     {
+        if(this.win)
+            return;
         //check movement validity
         let [row, col] = this.playerLocation;
         switch (code)
@@ -191,6 +201,8 @@ class Board {
         this.playerLocation = [row, col];
         this.setLocation(this.calcPositionFromRowCol(...this.playerLocation), "player");
         //check if win
+        if(this.win)
+            console.log("win!");
     }
 
     setLocation(position, newType)
@@ -208,6 +220,12 @@ class Board {
                 {
                     this.candyOnBoard--;
                     this.score++;
+                    document.getElementById("score").textContent = this.score;
+                    if(this.candyOnBoard == 0)
+                    {
+                        this.win = true;
+                        this.endGame();
+                    }
                 }
                 else
                 {
@@ -226,7 +244,8 @@ class Board {
                 //remove place in empty positions array
                 //here we will be given index in empty position array,
                 //as to not search the empty array each time
-                this.emptyPlaces.splice(position, 1);
+                //now change the position to the one on the board, and remove the index from array
+                position = this.emptyPlaces.splice(position, 1);
                 //update candy on board
                 this.candyOnBoard++;
                 break;
@@ -253,6 +272,21 @@ class Board {
         }
     }
 
+    startGame()
+    {
+        this.win = false;
+        this.score = 0;
+        document.getElementById("score").textContent = this.score;
+        document.getElementById("gameStatus").textContent = "Game in Progress...";
+        let seconds = 2;
+        this.candyIntervalId = setInterval(() => this.addCandy() , seconds * 1000);
+    }
+    
+    endGame()
+    {
+        clearInterval(this.candyIntervalId);
+        document.getElementById("gameStatus").textContent = "You Win!";
+    }
 
 }
 
@@ -278,8 +312,10 @@ if(a.emptyPlaces.length > 0)
     a.setLocation(a.emptyPlaces[location], "player");
 }
 
+//event listeners - keys for player movements, start game button to start candy placement
 window.addEventListener("keydown", (event) => {
       a.movePlayer(event.code);
     }, true);
-// a.changeImage(2, "player");
-// a.changeImage(5, "empty");
+
+let startButton = document.getElementById("startButton");
+startButton.addEventListener('click', () => a.startGame());
